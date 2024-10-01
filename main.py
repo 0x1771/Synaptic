@@ -33,15 +33,27 @@ def get_arguments():
     return arguments
 
 # GTTS LOGIC
+
 def google_speak(synaptic_speak):
+    # Google TTS ile metni ses dosyasına dönüştür
     tts = gTTS(text=synaptic_speak, lang="tr", slow=False)
+    
+    # Dosya adını oluştur
     date_string = datetime.datetime.now().strftime("%d%m%Y%H%M%S")
     filename = "voice" + date_string + ".mp3"
-    file_path =  "C:\\Users\\realh\\Masaüstü\\Synaptic\\audio_files\\" + filename  # Dosya yolunu burada değiştirin
+    file_path = "C:\\Users\\realh\\Masaüstü\\Synaptic\\audio_files\\" + filename  # Dosya yolunu burada değiştirin
     tts.save(file_path)
+    
+    # Sox ile tempoyu ayarla
+    output_file_path = "C:\\Users\\realh\\Masaüstü\\Synaptic\\audio_files\\" + "fast_" + filename
+    sox_command = f"sox {file_path} {output_file_path} tempo 1.6"
+    subprocess.run(sox_command, shell=True)
+    
+    # Pygame mixer ile oynat
     mixer.init()
-    mixer.music.load(file_path)
+    mixer.music.load(output_file_path)
     mixer.music.play()
+    
     while mixer.music.get_busy():
         time.sleep(1)
 
@@ -59,6 +71,8 @@ def get_temperature():
 
 # OFFLINE SPEAK
 def offline_speech(synaptic_speak):
+    voices = engine.getProperty('voices')
+    engine.setProperty('voice', voices[64].id)
     engine = pyttsx3.init()
     engine.say(synaptic_speak)
     engine.runAndWait()
